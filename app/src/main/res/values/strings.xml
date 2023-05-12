@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">GeoPlay</string>
+    <string name="title_activity_song_player">SongPlayer</string>
 </resources>
