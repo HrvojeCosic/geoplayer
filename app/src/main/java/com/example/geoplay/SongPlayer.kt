@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -22,17 +23,23 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.unit.dp
 import com.example.geoplay.ui.theme.SeekBar
+import com.google.accompanist.coil.rememberCoilPainter
 
 class SongPlayer : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val songTitle = intent.getStringExtra("title")
-        val songArtists = intent.getStringExtra("artists")
+        val songArtists = intent.getStringArrayListExtra("artists")
+        val imageUrl = intent.getStringExtra("imageURL")
+        val song = Song(songTitle.orEmpty(), songArtists as ArrayList<String>, imageUrl.orEmpty())
         setContent {
             Column(
                 modifier = Modifier
@@ -45,32 +52,10 @@ class SongPlayer : ComponentActivity() {
                             .padding(64.dp)
                             .align(Alignment.Center)
                     ) {
-                        // Album cover
-                        Box(
-                            modifier = Modifier
-                                .background(Color.LightGray, shape = RoundedCornerShape(10.dp))
-                                .size(210.dp)
-                                .align(Alignment.TopCenter)
-                        )
-
-                        // Song info
-                        Column(
-                            modifier = Modifier
-                                .align(Alignment.Center)
-                        ) {
-                            Text(
-                                text = songTitle!!,
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = Color.White,
-                            )
-                            Text(
-                                text = songArtists!!,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = Color.White,
-                            )
+                        Box( modifier = Modifier.align(Alignment.TopCenter) ) {
+                            AlbumCover(song)
                         }
-
-                        // Controls
+                        SongInfo(song, modifier = Modifier.align(Alignment.Center))
                         Column(
                             modifier = Modifier
                                 .align(Alignment.BottomCenter)
@@ -83,26 +68,7 @@ class SongPlayer : ComponentActivity() {
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
                                 SeekBar()
-                                Row {
-                                    Icon(
-                                        imageVector = Icons.Default.ArrowBack,
-                                        contentDescription = "Previous",
-                                        tint = Color.White,
-                                        modifier = Modifier.size(47.dp)
-                                    )
-                                    Icon(
-                                        imageVector = Icons.Default.PlayArrow,
-                                        contentDescription = "Play",
-                                        tint = Color.White,
-                                        modifier = Modifier.size(47.dp)
-                                    )
-                                    Icon(
-                                        imageVector = Icons.Default.ArrowForward,
-                                        contentDescription = "Previous",
-                                        tint = Color.White,
-                                        modifier = Modifier.size(47.dp)
-                                    )
-                                }
+                                Controls()
                             }
                         }
                     }
@@ -125,4 +91,58 @@ class SongPlayer : ComponentActivity() {
 fun onBackClicked(context: Context) {
     val intent = Intent(context, SongPlayer::class.java)
     context.startActivity(intent)
+}
+
+@Composable
+fun Controls() {
+    Row {
+        Icon(
+            imageVector = Icons.Default.ArrowBack,
+            contentDescription = "Previous",
+            tint = Color.White,
+            modifier = Modifier.size(47.dp)
+        )
+        Icon(
+            imageVector = Icons.Default.PlayArrow,
+            contentDescription = "Play",
+            tint = Color.White,
+            modifier = Modifier.size(47.dp)
+        )
+        Icon(
+            imageVector = Icons.Default.ArrowForward,
+            contentDescription = "Previous",
+            tint = Color.White,
+            modifier = Modifier.size(47.dp)
+        )
+    }
+}
+
+@Composable
+fun SongInfo(song: Song, modifier: Modifier) {
+    Column(
+        modifier = modifier
+    ) {
+        Text(
+            text = song.title,
+            style = MaterialTheme.typography.bodyLarge,
+            color = Color.White,
+        )
+        Text(
+            text = song.artists.toString(),
+            style = MaterialTheme.typography.bodyMedium,
+            color = Color.White,
+        )
+    }
+}
+
+@Composable
+fun AlbumCover(song: Song) {
+    val painter: Painter = rememberCoilPainter(request = song.imageUrl)
+    Image(
+        painter = painter,
+        contentDescription = "Image from ${song.imageUrl}",
+        modifier = Modifier
+            .size(200.dp)
+            .clip(RoundedCornerShape(20.dp))
+    )
 }

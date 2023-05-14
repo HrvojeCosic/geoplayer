@@ -27,22 +27,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.squareup.picasso.Picasso
 import kotlinx.coroutines.runBlocking
 
 @Composable
 fun RecommendedMusic() {
-    val context = LocalContext.current
-    var songs: MutableList<Song> = mutableListOf()
-    runBlocking {
-        val musicApi = SpotifyApiHandler()
-        musicApi.buildSearchApi()
-        val res = musicApi.trackSearch("sandstorm")
-        res.tracks!!.forEach {
-            val artists = it!!.artists.map {  it.name }
-            val img = it.album.images[1] // middle sized image
-            songs.add(Song(it.name, artists, img))
-        }
-    }
+    val songs = loadSongs()
 
     Column(
         modifier = Modifier
@@ -57,82 +47,118 @@ fun RecommendedMusic() {
             color = Color.White,
             modifier = Modifier.padding(bottom = 15.dp)
         )
+        CollectionSwapper()
+        SongsContainer(songs)
+    }
+}
 
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(1.dp, 25.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Icon(
-                imageVector = Icons.Default.ArrowBack,
-                contentDescription = "Previous",
-                tint = Color.White,
-                modifier = Modifier.size(47.dp)
-            )
+fun loadSongs(): MutableList<Song> {
+    val songs: MutableList<Song> = mutableListOf()
+    runBlocking {
+        val musicApi = SpotifyApiHandler()
+        musicApi.buildSearchApi()
+        val res = musicApi.trackSearch("sandstorm")
 
-            Icon(
-                imageVector = Icons.Default.ArrowForward,
-                contentDescription = "Next",
-                tint = Color.White,
-                modifier = Modifier.size(47.dp)
-            )
-        }
 
-        LazyColumn(
-        ) {
-            itemsIndexed(songs.chunked(2)) { _, songsChunk ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(199.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    songsChunk.forEach { song ->
-                        Column(
-                            modifier = Modifier
-                                .weight(1f)
-                                .padding(15.dp)
-                        ) {
-                            // Placeholder for the album cover
-                            Box(
-                                modifier = Modifier
-                                    .size(149.dp)
-                                    .background(Color.LightGray)
-                                    .clickable { onSongClicked(context, song) }
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .align(Alignment.BottomCenter)
-                                        .fillMaxWidth()
-                                        .height(65.dp)
-                                        .background(Color.DarkGray)
-                                ) {
-                                    Column(
-                                        modifier = Modifier.padding(6.dp)
-                                    ) {
-                                        Text(
-                                            text = song.title,
-                                            style = MaterialTheme.typography.bodyLarge,
-                                            color = Color.White,
-                                        )
-                                        Text(
-                                          text = song.artists.toString(),
-                                          style = MaterialTheme.typography.bodyLarge,
-                                          color = Color.White,
-                                        )                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+        for (it in res.tracks.orEmpty()) {
+            if (it == null) {
+                continue
             }
+            val artists = it.artists.map { it.name }
+            val img = it.album.images[0].url
+            songs.add(Song(it.name, artists as ArrayList<String>, img))
         }
     }
+    return songs
 }
 
 fun onSongClicked(context: Context, song: Song) {
     val intent = Intent(context, SongPlayer::class.java)
     intent.putExtra("title", song.title)
-    intent.putExtra("artists", song.artists.toString())
+    intent.putStringArrayListExtra("artists", song.artists)
+    intent.putExtra("imageURL", song.imageUrl)
     context.startActivity(intent)
+}
+
+@Composable
+fun SongCover(song: Song) {
+    val context = LocalContext.current
+
+    Box(
+        modifier = Modifier
+            .size(149.dp)
+            .background(Color.LightGray)
+            .clickable { onSongClicked(context, song) }
+    ) {
+        Box(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth()
+                .height(65.dp)
+                .background(Color.DarkGray)
+        ) {
+            Column(
+                modifier = Modifier.padding(6.dp)
+            ) {
+                Text(
+                    text = song.title,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = Color.White,
+                )
+                Text(
+                    text = song.artists.toString(),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = Color.White,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun CollectionSwapper() {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(1.dp, 25.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(
+            imageVector = Icons.Default.ArrowBack,
+            contentDescription = "Previous",
+            tint = Color.White,
+            modifier = Modifier.size(47.dp)
+        )
+        Icon(
+            imageVector = Icons.Default.ArrowForward,
+            contentDescription = "Next",
+            tint = Color.White,
+            modifier = Modifier.size(47.dp)
+        )
+    }
+}
+
+@Composable
+fun SongsContainer(songs: MutableList<Song>) {
+    LazyColumn() {
+        itemsIndexed(songs.chunked(2)) { _, songsChunk ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(199.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                songsChunk.forEach { song ->
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(15.dp)
+                    ) {
+                        SongCover(song)
+                    }
+                }
+            }
+        }
+    }
 }

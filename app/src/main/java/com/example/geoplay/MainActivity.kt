@@ -16,9 +16,3 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
-data class Song(
-    val title: String,
-    val artists: List<String>,
-    val image: SpotifyImage
-)
