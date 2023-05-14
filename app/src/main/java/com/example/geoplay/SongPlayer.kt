@@ -21,6 +21,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,15 +37,14 @@ import com.google.accompanist.coil.rememberCoilPainter
 class SongPlayer : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val songTitle = intent.getStringExtra("title")
-        val songArtists = intent.getStringArrayListExtra("artists")
-        val imageUrl = intent.getStringExtra("imageURL")
-        val song = Song(songTitle.orEmpty(), songArtists as ArrayList<String>, imageUrl.orEmpty())
+        val song: Song = loadSongFromIntent(intent)
+
         setContent {
             Column(
                 modifier = Modifier
                     .background(Color(0xFF1B1B1A))
             ) {
+                BackArrow { finish() }
                 Box(modifier = Modifier.fillMaxSize()) {
                     Box(
                         modifier = Modifier
@@ -53,7 +53,7 @@ class SongPlayer : ComponentActivity() {
                             .align(Alignment.Center)
                     ) {
                         Box( modifier = Modifier.align(Alignment.TopCenter) ) {
-                            AlbumCover(song)
+                            AlbumCover(song.imageUrl)
                         }
                         SongInfo(song, modifier = Modifier.align(Alignment.Center))
                         Column(
@@ -72,16 +72,6 @@ class SongPlayer : ComponentActivity() {
                             }
                         }
                     }
-                    Icon(
-                        Icons.Filled.ArrowBack,
-                        contentDescription = "Back",
-                        modifier = Modifier
-                            .padding(16.dp)
-                            .size(48.dp)
-                            .align(Alignment.TopStart)
-                            .clickable { onBackClicked(this@SongPlayer) },
-                        tint = Color.White
-                    )
                 }
             }
         }
@@ -91,6 +81,7 @@ class SongPlayer : ComponentActivity() {
 fun onBackClicked(context: Context) {
     val intent = Intent(context, SongPlayer::class.java)
     context.startActivity(intent)
+
 }
 
 @Composable
@@ -117,6 +108,13 @@ fun Controls() {
     }
 }
 
+fun loadSongFromIntent(intent: Intent): Song {
+    val songTitle = intent.getStringExtra("title").orEmpty()
+    val songArtists = intent.getStringArrayListExtra("artists") as ArrayList<String>
+    val imageUrl = intent.getStringExtra("imageURL").orEmpty()
+    return Song(songTitle, songArtists, imageUrl)
+}
+
 @Composable
 fun SongInfo(song: Song, modifier: Modifier) {
     Column(
@@ -136,13 +134,30 @@ fun SongInfo(song: Song, modifier: Modifier) {
 }
 
 @Composable
-fun AlbumCover(song: Song) {
-    val painter: Painter = rememberCoilPainter(request = song.imageUrl)
+fun AlbumCover(imageUrl: String) {
+    val painter: Painter = rememberCoilPainter(request = imageUrl)
     Image(
         painter = painter,
-        contentDescription = "Image from ${song.imageUrl}",
+        contentDescription = "Image from ${imageUrl}",
         modifier = Modifier
             .size(200.dp)
             .clip(RoundedCornerShape(20.dp))
     )
+}
+
+@Composable
+fun BackArrow(onClick: () -> Unit) {
+    IconButton(
+        onClick = { onClick() },
+        modifier = Modifier
+            .padding(16.dp)
+            .size(40.dp)
+    ) {
+        Icon(
+            modifier = Modifier.size(45.dp),
+            imageVector = Icons.Default.ArrowBack,
+            contentDescription = "Back",
+            tint = Color.White
+        )
+    }
 }
