@@ -32,7 +32,7 @@ class SongPlayer : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val songTitle = intent.getStringExtra("title")
-        val songArtist = intent.getStringExtra("artist")
+        val songArtists = intent.getStringExtra("artists")
         setContent {
             Column(
                 modifier = Modifier
@@ -64,7 +64,7 @@ class SongPlayer : ComponentActivity() {
                                 color = Color.White,
                             )
                             Text(
-                                text = songArtist!!,
+                                text = songArtists!!,
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = Color.White,
                             )

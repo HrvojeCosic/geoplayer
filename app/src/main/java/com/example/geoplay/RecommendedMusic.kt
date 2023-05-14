@@ -27,10 +27,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.runBlocking
 
 @Composable
-fun RecommendedMusic(songs: List<Song>) {
+fun RecommendedMusic() {
     val context = LocalContext.current
+    var songs: MutableList<Song> = mutableListOf()
+    runBlocking {
+        val musicApi = SpotifyApiHandler()
+        musicApi.buildSearchApi()
+        val res = musicApi.trackSearch("sandstorm")
+        res.tracks!!.forEach {
+            val artists = it!!.artists.map {  it.name }
+            val img = it.album.images[1] // middle sized image
+            songs.add(Song(it.name, artists, img))
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -103,11 +116,10 @@ fun RecommendedMusic(songs: List<Song>) {
                                             color = Color.White,
                                         )
                                         Text(
-                                            text = song.artist,
-                                            style = MaterialTheme.typography.bodyLarge,
-                                            color = Color.White,
-                                        )
-                                    }
+                                          text = song.artists.toString(),
+                                          style = MaterialTheme.typography.bodyLarge,
+                                          color = Color.White,
+                                        )                                    }
                                 }
                             }
                         }
@@ -121,6 +133,6 @@ fun RecommendedMusic(songs: List<Song>) {
 fun onSongClicked(context: Context, song: Song) {
     val intent = Intent(context, SongPlayer::class.java)
     intent.putExtra("title", song.title)
-    intent.putExtra("artist", song.artist)
+    intent.putExtra("artists", song.artists.toString())
     context.startActivity(intent)
 }
