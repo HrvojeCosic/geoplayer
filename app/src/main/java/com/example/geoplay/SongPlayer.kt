@@ -26,6 +26,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.example.geoplay.ui.theme.SeekBar
 
 class SongPlayer : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,32 +45,44 @@ class SongPlayer : ComponentActivity() {
                             .padding(64.dp)
                             .align(Alignment.Center)
                     ) {
+                        // Album cover
                         Box(
                             modifier = Modifier
                                 .background(Color.LightGray, shape = RoundedCornerShape(10.dp))
-                                .size(260.dp)
-                                .align(Alignment.Center)
+                                .size(210.dp)
+                                .align(Alignment.TopCenter)
                         )
 
+                        // Song info
+                        Column(
+                            modifier = Modifier
+                                .align(Alignment.Center)
+                        ) {
+                            Text(
+                                text = songTitle!!,
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = Color.White,
+                            )
+                            Text(
+                                text = songArtist!!,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = Color.White,
+                            )
+                        }
+
+                        // Controls
                         Column(
                             modifier = Modifier
                                 .align(Alignment.BottomCenter)
+                                .padding(0.dp, 70.dp)
                         ) {
                             Column(
                                 modifier = Modifier
-                                    .fillMaxWidth(),
+                                    .fillMaxWidth()
+                                    .padding(0.dp, 30.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
-                                Text(
-                                    text = songTitle!!,
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    color = Color.White,
-                                )
-                                Text(
-                                    text = songArtist!!,
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = Color.White,
-                                )
+                                SeekBar()
                                 Row {
                                     Icon(
                                         imageVector = Icons.Default.ArrowBack,
