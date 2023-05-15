@@ -15,20 +15,24 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.squareup.picasso.Picasso
+import com.example.geoplay.reusable.SongCover
+import com.example.geoplay.reusable.loadRandomColor
 import kotlinx.coroutines.runBlocking
 
 @Composable
@@ -82,40 +86,41 @@ fun onSongClicked(context: Context, song: Song) {
 }
 
 @Composable
-fun SongCover(song: Song) {
+fun SongContainer(song: Song) {
     val context = LocalContext.current
 
     Box(
         modifier = Modifier
-            .size(149.dp)
             .background(Color.LightGray)
             .clickable { onSongClicked(context, song) }
     ) {
-        Box(
+        Column(
             modifier = Modifier
-                .align(Alignment.BottomCenter)
                 .fillMaxWidth()
-                .height(65.dp)
                 .background(Color.DarkGray)
+                .padding(6.dp)
         ) {
-            Column(
-                modifier = Modifier.padding(6.dp)
+            Box(
+                modifier = Modifier.weight(1f) // Occupy available space
             ) {
-                Text(
-                    text = song.title,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = Color.White,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Text(
-                    text = song.artists.joinToString(", "),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = Color.White,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
+                SongCover(imageUrl = song.imageUrl)
             }
+            // TODO: Loads slowly due to loading random colors 1 by 1
+            Divider(color = loadRandomColor(), thickness = 4.dp)
+            Text(
+                text = song.title,
+                style = MaterialTheme.typography.bodyLarge,
+                color = Color.White,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            Text(
+                text = song.artists.joinToString(", "),
+                style = MaterialTheme.typography.bodyLarge,
+                color = Color.White,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
         }
     }
 }
@@ -151,7 +156,7 @@ fun SongsContainer(songs: MutableList<Song>) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(199.dp),
+                    .height(200.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 songsChunk.forEach { song ->
@@ -159,8 +164,9 @@ fun SongsContainer(songs: MutableList<Song>) {
                         modifier = Modifier
                             .weight(1f)
                             .padding(15.dp)
+                            .clip(RoundedCornerShape(10.dp))
                     ) {
-                        SongCover(song)
+                        SongContainer(song)
                     }
                 }
             }

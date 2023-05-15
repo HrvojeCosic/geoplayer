@@ -1,13 +1,10 @@
 package com.example.geoplay
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowForward
@@ -27,13 +23,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.example.geoplay.reusable.SongCover
 import com.example.geoplay.ui.theme.SeekBar
-import com.google.accompanist.coil.rememberCoilPainter
 
 class SongPlayer : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,7 +48,7 @@ class SongPlayer : ComponentActivity() {
                             .align(Alignment.Center)
                     ) {
                         Box( modifier = Modifier.align(Alignment.TopCenter) ) {
-                            AlbumCover(song.imageUrl)
+                            SongCover(song.imageUrl)
                         }
                         SongInfo(song, modifier = Modifier.align(Alignment.Center))
                         Column(
@@ -77,12 +71,6 @@ class SongPlayer : ComponentActivity() {
             }
         }
     }
-}
-
-fun onBackClicked(context: Context) {
-    val intent = Intent(context, SongPlayer::class.java)
-    context.startActivity(intent)
-
 }
 
 @Composable
@@ -138,17 +126,6 @@ fun SongInfo(song: Song, modifier: Modifier) {
     }
 }
 
-@Composable
-fun AlbumCover(imageUrl: String) {
-    val painter: Painter = rememberCoilPainter(request = imageUrl)
-    Image(
-        painter = painter,
-        contentDescription = "Image from $imageUrl",
-        modifier = Modifier
-            .size(200.dp)
-            .clip(RoundedCornerShape(20.dp))
-    )
-}
 
 @Composable
 fun BackArrow(onClick: () -> Unit) {
