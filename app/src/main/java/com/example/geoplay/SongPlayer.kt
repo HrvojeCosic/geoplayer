@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.geoplay.ui.theme.SeekBar
 import com.google.accompanist.coil.rememberCoilPainter
@@ -124,11 +125,15 @@ fun SongInfo(song: Song, modifier: Modifier) {
             text = song.title,
             style = MaterialTheme.typography.bodyLarge,
             color = Color.White,
+            maxLines = 3,
+            overflow = TextOverflow.Ellipsis
         )
         Text(
-            text = song.artists.toString(),
+            text = song.artists.joinToString(", "),
             style = MaterialTheme.typography.bodyMedium,
             color = Color.White,
+            maxLines = 3,
+            overflow = TextOverflow.Ellipsis
         )
     }
 }
@@ -138,7 +143,7 @@ fun AlbumCover(imageUrl: String) {
     val painter: Painter = rememberCoilPainter(request = imageUrl)
     Image(
         painter = painter,
-        contentDescription = "Image from ${imageUrl}",
+        contentDescription = "Image from $imageUrl",
         modifier = Modifier
             .size(200.dp)
             .clip(RoundedCornerShape(20.dp))

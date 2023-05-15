@@ -26,6 +26,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.squareup.picasso.Picasso
 import kotlinx.coroutines.runBlocking
@@ -104,11 +105,15 @@ fun SongCover(song: Song) {
                     text = song.title,
                     style = MaterialTheme.typography.bodyLarge,
                     color = Color.White,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    text = song.artists.toString(),
+                    text = song.artists.joinToString(", "),
                     style = MaterialTheme.typography.bodyLarge,
                     color = Color.White,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
         }
