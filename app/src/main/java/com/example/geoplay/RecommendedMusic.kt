@@ -36,8 +36,8 @@ import com.example.geoplay.reusable.loadRandomColor
 import kotlinx.coroutines.runBlocking
 
 @Composable
-fun RecommendedMusic() {
-    val songs = loadSongs()
+fun RecommendedMusic(context: Context) {
+    val songs = loadSongs(context)
 
     Column(
         modifier = Modifier
@@ -57,7 +57,7 @@ fun RecommendedMusic() {
     }
 }
 
-fun loadSongs(): MutableList<Song> {
+fun loadSongs(context: Context): MutableList<Song> {
     val songs: MutableList<Song> = mutableListOf()
     runBlocking {
         val musicApi = SpotifyApiHandler()
