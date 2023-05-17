@@ -36,8 +36,8 @@ import com.example.geoplay.reusable.loadRandomColor
 import kotlinx.coroutines.runBlocking
 
 @Composable
-fun RecommendedMusic(context: Context) {
-    val songs = loadSongs(context)
+fun RecommendedMusic() {
+    val songs = loadSongs()
 
     Column(
         modifier = Modifier
@@ -57,13 +57,12 @@ fun RecommendedMusic(context: Context) {
     }
 }
 
-fun loadSongs(context: Context): MutableList<Song> {
+fun loadSongs(): MutableList<Song> {
     val songs: MutableList<Song> = mutableListOf()
     runBlocking {
         val musicApi = SpotifyApiHandler()
         musicApi.buildSearchApi()
         val res = musicApi.trackSearch("sandstorm")
-
 
         for (it in res.tracks.orEmpty()) {
             if (it == null) {
@@ -71,7 +70,7 @@ fun loadSongs(context: Context): MutableList<Song> {
             }
             val artists = it.artists.map { it.name }
             val img = it.album.images[0].url
-            songs.add(Song(it.name, artists as ArrayList<String>, img))
+            songs.add(Song(it.name, artists as ArrayList<String>, img, it.previewUrl))
         }
     }
     return songs
@@ -82,6 +81,7 @@ fun onSongClicked(context: Context, song: Song) {
     intent.putExtra("title", song.title)
     intent.putStringArrayListExtra("artists", song.artists)
     intent.putExtra("imageURL", song.imageUrl)
+    intent.putExtra("playbackURL", song.playbackUrl)
     context.startActivity(intent)
 }
 
@@ -105,7 +105,6 @@ fun SongContainer(song: Song) {
             ) {
                 SongCover(imageUrl = song.imageUrl)
             }
-            // TODO: Loads slowly due to loading random colors 1 by 1
             Divider(color = loadRandomColor(), thickness = 4.dp)
             Text(
                 text = song.title,

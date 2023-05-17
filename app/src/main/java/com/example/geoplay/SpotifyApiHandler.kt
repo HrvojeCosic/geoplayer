@@ -21,10 +21,11 @@ class SpotifyApiHandler {
         .showAuthView(true)
         .build()
 
-    fun connectToRemote(context: Context): SpotifyAppRemote? {
+    fun connectToRemote(context: Context, onConnectCb: (SpotifyAppRemote) -> Unit): SpotifyAppRemote? {
         SpotifyAppRemote.connect(context, connectionParams, object : Connector.ConnectionListener {
             override fun onConnected(appRemote: SpotifyAppRemote) {
                 spotifyAppRemote = appRemote
+                onConnectCb(appRemote)
                 Log.d(context.toString(), "Connected!")
             }
 
