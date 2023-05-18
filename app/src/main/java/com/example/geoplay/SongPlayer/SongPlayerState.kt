@@ -1,5 +1,6 @@
-package com.example.geoplay
+package com.example.geoplay.SongPlayer
 
+import com.example.geoplay.Song
 import com.google.android.exoplayer2.ExoPlayer
 
 data class SongPlayerState (

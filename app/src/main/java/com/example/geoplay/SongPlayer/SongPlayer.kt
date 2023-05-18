@@ -1,4 +1,4 @@
-package com.example.geoplay
+package com.example.geoplay.SongPlayer
 
 import android.content.Context
 import android.content.Intent
@@ -38,6 +38,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
+import com.example.geoplay.R
+import com.example.geoplay.Song
 import com.example.geoplay.reusable.SongCover
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem

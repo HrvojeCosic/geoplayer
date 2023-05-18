@@ -31,6 +31,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.example.geoplay.SongPlayer.SongPlayer
 import com.example.geoplay.reusable.SongCover
 import com.example.geoplay.reusable.loadRandomColor
 import kotlinx.coroutines.runBlocking
