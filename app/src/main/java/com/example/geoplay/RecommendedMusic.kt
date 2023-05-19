@@ -66,16 +66,21 @@ fun loadSongs(): TrackedSongPlayerSongs {
         musicApi.buildSearchApi()
         val res = musicApi.trackSearch("sandstorm")
 
-        for (it in res.tracks.orEmpty()) {
-            if (it == null || it.previewUrl == null) {
+        for (it in res.tracks!!) {
+            var track = it
+
+            var currReplaced = res.tracks!!.size - 1
+            if (track.previewUrl == null) {
+                track = res.tracks!![currReplaced]
+                currReplaced -= 1
                 continue
             }
-            val artists = it.artists.map { it.name }
-            val img = it.album.images[0].url
-            songs.add(Song(it.name, artists as ArrayList<String>, img, it.previewUrl))
+            val artists = track.artists.map { it.name }
+            val img = track.album.images[0].url
+            songs.add(Song(track.name, artists as ArrayList<String>, img, track.previewUrl))
         }
     }
-    return TrackedSongPlayerSongs(songs, 0)
+    return TrackedSongPlayerSongs(songs.subList(0, 10).toMutableList(), 0)
 }
 
 fun onSongClicked(context: Context, trackedSongPlayerSongs: TrackedSongPlayerSongs) {
