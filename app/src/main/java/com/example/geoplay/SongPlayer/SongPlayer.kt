@@ -1,9 +1,7 @@
 package com.example.geoplay.SongPlayer
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -42,24 +40,23 @@ import com.example.geoplay.R
 import com.example.geoplay.Song
 import com.example.geoplay.reusable.SongCover
 import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.MediaItem
-import com.google.android.exoplayer2.Player
 
 
 class SongPlayer : ComponentActivity() {
+    private lateinit var playerViewModel: SongPlayerViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        playerViewModel = ViewModelProvider(this)[SongPlayerViewModel::class.java]
 
-        val song = loadSongFromIntent(intent)
-        val playerViewModel = ViewModelProvider(this)[SongPlayerViewModel::class.java]
-        initializePlayer(this, song, playerViewModel)
+        val res = intent.getSerializableExtra("trackedSongPlayerSongs") as TrackedSongPlayerSongs
+        initializePlayer(this, res, playerViewModel)
 
         setContent {
-            Column( modifier = Modifier.background(Color(0xFF1B1B1A)) ) {
-                BackArrow {
-                    playerViewModel.uiState.value.player?.stop()
-                    finish()
-                }
+            val trackedSongPlayerSongs =
+                playerViewModel.uiState.collectAsState().value.trackedSongPlayerSongs
+            Column(modifier = Modifier.background(Color(0xFF1B1B1A))) {
+                BackArrow { finish() }
                 Box(modifier = Modifier.fillMaxSize()) {
                     Box(
                         modifier = Modifier
@@ -67,10 +64,14 @@ class SongPlayer : ComponentActivity() {
                             .padding(64.dp)
                             .align(Alignment.Center)
                     ) {
+                        val tps = trackedSongPlayerSongs!!
                         Box(modifier = Modifier.align(Alignment.TopCenter)) {
-                            SongCover(song.imageUrl)
+                            SongCover(tps.songPlayerSongs[tps.currentIndex].imageUrl)
                         }
-                        SongInfo(song, modifier = Modifier.align(Alignment.Center))
+                        SongInfo(
+                            tps.songPlayerSongs[tps.currentIndex],
+                            modifier = Modifier.align(Alignment.Center)
+                        )
                         Column(
                             modifier = Modifier
                                 .align(Alignment.BottomCenter)
@@ -89,7 +90,13 @@ class SongPlayer : ComponentActivity() {
                     }
                 }
             }
-        }}
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        playerViewModel.uiState.value.player?.stop()
+    }
 }
 
 @Composable
@@ -97,7 +104,10 @@ fun Controls(playerViewModel: SongPlayerViewModel = viewModel()) {
     val playerUiState by playerViewModel.uiState.collectAsState()
 
     Row {
-        IconButton(onClick = { /*TODO*/ }) {
+        IconButton(onClick = {
+            val newIndex = playerUiState.trackedSongPlayerSongs?.currentIndex?.minus(1)!!
+            playerViewModel.updateSongIndex(newIndex)
+        }) {
             Icon(
                 imageVector = Icons.Default.ArrowBack,
                 contentDescription = "Previous",
@@ -114,7 +124,10 @@ fun Controls(playerViewModel: SongPlayerViewModel = viewModel()) {
                 modifier = Modifier.size(47.dp)
             )
         }
-        IconButton(onClick = { /*TODO*/ }) {
+        IconButton(onClick = {
+            val newIndex = playerUiState.trackedSongPlayerSongs?.currentIndex?.plus(1)!!
+            playerViewModel.updateSongIndex(newIndex)
+        }) {
             Icon(
                 imageVector = Icons.Default.ArrowForward,
                 contentDescription = "Previous",
@@ -188,40 +201,9 @@ fun BackArrow(onClick: () -> Unit) {
     }
 }
 
-fun initializePlayer(context: Context, song: Song, viewModel: SongPlayerViewModel) {
-    val player = ExoPlayer.Builder(context).build()
-    val mediaItem = MediaItem.fromUri(song.playbackUrl!!)
-    player.setMediaItem(mediaItem)
-    player.prepare()
-
-    viewModel.updatePlayer(player)
-    viewModel.updateSong(song)
-
-    val handler = Handler()
-    val runnable = object: Runnable {
-        override fun run() {
-            viewModel.updateProgress(
-                (player.currentPosition*100/player.duration).toFloat(),
-                SongPlayerViewModel.UpdateCause.PROCESS
-            )
-            handler.postDelayed(this, 500)
-        }
-    }
-    handler.postDelayed(runnable,0)
-
-    player.addListener(object: Player.Listener {
-        override fun onPlaybackStateChanged(playbackState: Int) {
-            super.onPlaybackStateChanged(playbackState)
-            if (playbackState == Player.STATE_ENDED && viewModel.uiState.value.isPlaying) {
-                viewModel.toggleSongPlay()
-            }
-        }
-    })
-}
-fun loadSongFromIntent(intent: Intent): Song {
-    val songTitle = intent.getStringExtra("title").orEmpty()
-    val songArtists = intent.getStringArrayListExtra("artists") as ArrayList<String>
-    val imageUrl = intent.getStringExtra("imageURL").orEmpty()
-    val playbackUrl = intent.getStringExtra("playbackURL").orEmpty()
-    return Song(songTitle, songArtists, imageUrl, playbackUrl)
+fun initializePlayer(context: Context, trackedSongPlayerSongs: TrackedSongPlayerSongs, viewModel: SongPlayerViewModel) {
+    viewModel.setupPlayer(
+        player = ExoPlayer.Builder(context).build(),
+        trackedSongPlayerSongs = trackedSongPlayerSongs
+    )
 }

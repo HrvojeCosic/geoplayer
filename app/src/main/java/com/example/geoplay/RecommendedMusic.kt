@@ -32,14 +32,15 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.geoplay.SongPlayer.SongPlayer
+import com.example.geoplay.SongPlayer.TrackedSongPlayerSongs
 import com.example.geoplay.reusable.SongCover
 import com.example.geoplay.reusable.loadRandomColor
 import kotlinx.coroutines.runBlocking
+import java.io.Serializable
 
 @Composable
 fun RecommendedMusic() {
     val songs = loadSongs()
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -58,7 +59,7 @@ fun RecommendedMusic() {
     }
 }
 
-fun loadSongs(): MutableList<Song> {
+fun loadSongs(): TrackedSongPlayerSongs {
     val songs: MutableList<Song> = mutableListOf()
     runBlocking {
         val musicApi = SpotifyApiHandler()
@@ -66,7 +67,7 @@ fun loadSongs(): MutableList<Song> {
         val res = musicApi.trackSearch("sandstorm")
 
         for (it in res.tracks.orEmpty()) {
-            if (it == null) {
+            if (it == null || it.previewUrl == null) {
                 continue
             }
             val artists = it.artists.map { it.name }
@@ -74,26 +75,25 @@ fun loadSongs(): MutableList<Song> {
             songs.add(Song(it.name, artists as ArrayList<String>, img, it.previewUrl))
         }
     }
-    return songs
+    return TrackedSongPlayerSongs(songs, 0)
 }
 
-fun onSongClicked(context: Context, song: Song) {
+fun onSongClicked(context: Context, trackedSongPlayerSongs: TrackedSongPlayerSongs) {
     val intent = Intent(context, SongPlayer::class.java)
-    intent.putExtra("title", song.title)
-    intent.putStringArrayListExtra("artists", song.artists)
-    intent.putExtra("imageURL", song.imageUrl)
-    intent.putExtra("playbackURL", song.playbackUrl)
+    intent.putExtra("trackedSongPlayerSongs", trackedSongPlayerSongs as Serializable)
     context.startActivity(intent)
 }
 
 @Composable
-fun SongContainer(song: Song) {
+fun SongContainer(trackedSongPlayerSongs: TrackedSongPlayerSongs) {
     val context = LocalContext.current
+
+    val song = trackedSongPlayerSongs.songPlayerSongs[trackedSongPlayerSongs.currentIndex]
 
     Box(
         modifier = Modifier
             .background(Color.LightGray)
-            .clickable { onSongClicked(context, song) }
+            .clickable { onSongClicked(context, trackedSongPlayerSongs) }
     ) {
         Column(
             modifier = Modifier
@@ -150,23 +150,24 @@ fun CollectionSwapper() {
 }
 
 @Composable
-fun SongsContainer(songs: MutableList<Song>) {
+fun SongsContainer(tps: TrackedSongPlayerSongs) {
     LazyColumn() {
-        itemsIndexed(songs.chunked(2)) { _, songsChunk ->
+        val chunkSize = 2
+        itemsIndexed(tps.songPlayerSongs.chunked(chunkSize)) {i, songsChunk ->
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(200.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                songsChunk.forEach { song ->
+                songsChunk.forEachIndexed { j, _ ->
                     Column(
                         modifier = Modifier
                             .weight(1f)
                             .padding(15.dp)
                             .clip(RoundedCornerShape(10.dp))
                     ) {
-                        SongContainer(song)
+                        SongContainer(TrackedSongPlayerSongs(tps.songPlayerSongs, (i*chunkSize)+j))
                     }
                 }
             }
