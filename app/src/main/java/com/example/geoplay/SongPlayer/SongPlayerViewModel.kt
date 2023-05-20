@@ -92,7 +92,7 @@ class SongPlayerViewModel: ViewModel() {
         }
 
         _uiState.update { currentState ->
-            if (newIndex < 0 || newIndex > currentState.trackedSongPlayerSongs!!.songPlayerSongs.size) { return }
+            if (newIndex < 0 || newIndex >= currentState.trackedSongPlayerSongs!!.songPlayerSongs.size) { return }
             currentState.copy(
                 player = setupPlayer(currentState.trackedSongPlayerSongs)
             )
