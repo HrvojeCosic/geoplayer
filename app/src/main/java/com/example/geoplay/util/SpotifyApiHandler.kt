@@ -1,4 +1,4 @@
-package com.example.geoplay
+package com.example.geoplay.util
 
 import android.content.Context
 import android.util.Log
@@ -6,6 +6,7 @@ import com.adamratzman.spotify.SpotifyAppApi
 import com.adamratzman.spotify.models.SpotifySearchResult
 import com.adamratzman.spotify.spotifyAppApi
 import com.adamratzman.spotify.utils.Market
+import com.example.geoplay.BuildConfig
 import com.spotify.android.appremote.api.ConnectionParams
 import com.spotify.android.appremote.api.Connector
 import com.spotify.android.appremote.api.SpotifyAppRemote

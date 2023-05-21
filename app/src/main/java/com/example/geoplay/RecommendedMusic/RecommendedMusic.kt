@@ -32,11 +32,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.example.geoplay.LocationHelper
-import com.example.geoplay.Song
+import com.example.geoplay.util.LocationHelper
 import com.example.geoplay.SongPlayer.SongPlayer
 import com.example.geoplay.SongPlayer.TrackedSongPlayerSongs
-import com.example.geoplay.SpotifyApiHandler
+import com.example.geoplay.util.SpotifyApiHandler
 import com.example.geoplay.reusable.SongCover
 import kotlinx.coroutines.runBlocking
 import java.io.Serializable

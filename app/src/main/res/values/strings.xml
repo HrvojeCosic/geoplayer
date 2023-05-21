@@ -1,4 +1,16 @@
 <resources>
     <string name="app_name">GeoPlay</string>
     <string name="title_activity_song_player">SongPlayer</string>
+    <string name="sign_in">Prijavi se</string>
+    <string name="not_registered_yet_sign_up">Registriraj se</string>
+    <string name="enter_email">Unesite Email adresu</string>
+    <string name="already_registered_login">Već registrirani? Prijavite se!</string>
+    <string name="register">Registiranje</string>
+    <string name="password_input">Unesite lozinku</string>
+    <string name="login_ann_text">Prijavite se</string>
+    <string name="register_ann_text">Registrirajte se</string>
+    <string name="confirm">Potvrdi</string>
+    <string name="pwd_confirm">Potvrda lozinke</string>
+    <string name="pwd">Lozinka</string>
+    <string name="email">Email</string>
 </resources>

@@ -1,4 +1,4 @@
-package com.example.geoplay
+package com.example.geoplay.RecommendedMusic
 
 import java.io.Serializable
 

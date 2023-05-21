@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "231793222499",
+    "project_id": "geoplay-d96a3",
+    "storage_bucket": "geoplay-d96a3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:231793222499:android:eae87ec20824b934c5e956",
+        "android_client_info": {
+          "package_name": "com.example.geoplay"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "231793222499-p5la5fvu834170enoq4lud1chjas5tho.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAK89TLHVe4qVq1dQQMpxNLzlrMnvUfmRs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "231793222499-p5la5fvu834170enoq4lud1chjas5tho.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

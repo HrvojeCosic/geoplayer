@@ -1,4 +1,4 @@
-package com.example.geoplay
+package com.example.geoplay.util
 
 import android.Manifest
 import android.app.Activity
@@ -10,7 +10,6 @@ import android.location.Geocoder
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
-import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import java.io.IOException

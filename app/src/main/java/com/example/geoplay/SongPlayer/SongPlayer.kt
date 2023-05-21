@@ -37,7 +37,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
 import com.example.geoplay.R
-import com.example.geoplay.Song
+import com.example.geoplay.RecommendedMusic.Song
 import com.example.geoplay.reusable.SongCover
 import com.google.android.exoplayer2.ExoPlayer
 
