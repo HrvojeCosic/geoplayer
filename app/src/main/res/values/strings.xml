@@ -13,4 +13,6 @@
     <string name="pwd_confirm">Potvrda lozinke</string>
     <string name="pwd">Lozinka</string>
     <string name="email">Email</string>
+    <string name="your_playlist">Vaš Album</string>
+    <string name="back_button">back button</string>
 </resources>

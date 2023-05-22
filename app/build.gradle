@@ -67,6 +67,8 @@ dependencies {
         }
     }
 
+    implementation platform('com.google.firebase:firebase-bom:32.0.0')
+    implementation 'com.google.firebase:firebase-firestore-ktx'
     implementation 'com.google.firebase:firebase-auth:22.0.0'
     implementation fileTree(dir: 'libs', include: ['*.aar'])
     implementation 'com.google.android.exoplayer:exoplayer:2.18.6'

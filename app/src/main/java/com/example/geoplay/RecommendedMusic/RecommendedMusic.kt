@@ -2,6 +2,7 @@ package com.example.geoplay.RecommendedMusic
 
 import android.content.Context
 import android.content.Intent
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -30,18 +32,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.example.geoplay.LoginActivity
+import com.example.geoplay.Playlist.PlaylistActivity
+import com.example.geoplay.R
 import com.example.geoplay.util.LocationHelper
 import com.example.geoplay.SongPlayer.SongPlayer
 import com.example.geoplay.SongPlayer.TrackedSongPlayerSongs
 import com.example.geoplay.util.SpotifyApiHandler
 import com.example.geoplay.reusable.SongCover
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.runBlocking
 import java.io.Serializable
 
 @Composable
-fun RecommendedMusic() {
+fun RecommendedMusic(context: Context) {
     val songs = loadSongs(LocalContext.current)
 
     Column(
@@ -51,12 +58,45 @@ fun RecommendedMusic() {
             .padding(15.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(
-            text = "Preporučeno",
-            style = MaterialTheme.typography.headlineLarge,
-            color = Color.White,
-            modifier = Modifier.padding(bottom = 15.dp)
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            IconButton(onClick = {
+                val intent = Intent(context, PlaylistActivity::class.java)
+                context.startActivity(intent)
+            }) {
+                Icon(
+                    painter = painterResource(id = R.drawable.baseline_playlist_play_24),
+                    contentDescription = "PlaylistIcon",
+                    tint = Color.White,
+                    modifier = Modifier.size(47.dp)
+                )
+            }
+            Text(
+                text = "Preporučeno",
+                style = MaterialTheme.typography.headlineLarge,
+                color = Color.White,
+                modifier = Modifier.weight(1f)
+                    .padding(bottom = 15.dp)
+                    .wrapContentWidth(Alignment.CenterHorizontally)
+            )
+            IconButton(onClick = {
+                FirebaseAuth.getInstance().signOut()
+                val intent = Intent(context, LoginActivity::class.java)
+                context.startActivity(intent)
+                Toast.makeText(context, "Uspješno ste odjavljeni", Toast.LENGTH_SHORT).show()
+            }) {
+                Icon(
+                    painter = painterResource(id = R.drawable.baseline_logout_24),
+                    contentDescription = "PlaylistIcon",
+                    tint = Color.White,
+                    modifier = Modifier.size(30.dp)
+                )
+            }
+        }
+
         SongsContainer(songs)
     }
 }

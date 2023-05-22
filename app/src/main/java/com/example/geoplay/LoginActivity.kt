@@ -6,6 +6,7 @@ import android.graphics.Color
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.example.geoplay.Playlist.PlaylistActivity
 import com.example.geoplay.databinding.ActivityLoginBinding
 import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.auth.FirebaseAuth
@@ -24,6 +25,7 @@ class LoginActivity : AppCompatActivity() {
         firebaseAuth = FirebaseAuth.getInstance()
         binding.textView.setOnClickListener {
             val intent = Intent(this, RegisterActivity::class.java)
+            finish()
             startActivity(intent)
         }
 
@@ -35,6 +37,7 @@ class LoginActivity : AppCompatActivity() {
                 firebaseAuth.signInWithEmailAndPassword(email, pass).addOnCompleteListener {
                     if (it.isSuccessful) {
                         val intent = Intent(this, MainActivity::class.java)
+                        finish()
                         startActivity(intent)
                     } else {
                         Toast.makeText(this, it.exception.toString(), Toast.LENGTH_SHORT).show()
@@ -52,6 +55,7 @@ class LoginActivity : AppCompatActivity() {
 
         if(firebaseAuth.currentUser != null){
             val intent = Intent(this, MainActivity::class.java)
+            finish()
             startActivity(intent)
         }
     }

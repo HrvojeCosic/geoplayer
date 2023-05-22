@@ -25,6 +25,7 @@ class RegisterActivity: AppCompatActivity() {
 
         binding.textView.setOnClickListener {
             val intent = Intent(this, LoginActivity::class.java)
+            finish()
             startActivity(intent)
         }
         binding.button.setOnClickListener {
@@ -37,6 +38,7 @@ class RegisterActivity: AppCompatActivity() {
                     firebaseAuth.createUserWithEmailAndPassword(email, pass).addOnCompleteListener {
                         if (it.isSuccessful) {
                             val intent = Intent(this, LoginActivity::class.java)
+                            finish()
                             startActivity(intent)
                         } else {
                             Toast.makeText(this, it.exception.toString(), Toast.LENGTH_SHORT).show()

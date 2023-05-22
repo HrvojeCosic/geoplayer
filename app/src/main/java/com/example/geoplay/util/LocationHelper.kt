@@ -71,6 +71,7 @@ class LocationHelper(private val context: Context) {
                     val addresses: List<Address> = geocoder?.getFromLocation(latitude, longitude, 1) ?: emptyList()
                     if (addresses.isNotEmpty()) {
                         cityName = addresses[0].locality ?: ""
+                        println(cityName)
                     }
                 }
             }

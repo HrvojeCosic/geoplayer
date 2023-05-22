@@ -2,6 +2,8 @@ package com.example.geoplay.SongPlayer
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -14,9 +16,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -36,10 +41,15 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
+import com.example.geoplay.Playlist.PlaylistActivity
 import com.example.geoplay.R
 import com.example.geoplay.RecommendedMusic.Song
 import com.example.geoplay.reusable.SongCover
 import com.google.android.exoplayer2.ExoPlayer
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 
 
 class SongPlayer : ComponentActivity() {
@@ -55,6 +65,7 @@ class SongPlayer : ComponentActivity() {
         setContent {
             val trackedSongPlayerSongs =
                 playerViewModel.uiState.collectAsState().value.trackedSongPlayerSongs
+            val tps = trackedSongPlayerSongs!!
             Column(modifier = Modifier.background(Color(0xFF1B1B1A))) {
                 BackArrow { finish() }
                 Box(modifier = Modifier.fillMaxSize()) {
@@ -64,7 +75,6 @@ class SongPlayer : ComponentActivity() {
                             .padding(64.dp)
                             .align(Alignment.Center)
                     ) {
-                        val tps = trackedSongPlayerSongs!!
                         Box(modifier = Modifier.align(Alignment.TopCenter)) {
                             SongCover(tps.songPlayerSongs[tps.currentIndex].imageUrl)
                         }
@@ -88,11 +98,33 @@ class SongPlayer : ComponentActivity() {
                             }
                         }
                     }
+                    if (intent.getSerializableExtra("sourceActivity") != PlaylistActivity::class.java) {
+                        Button(
+                            onClick = {
+                                addSongToAlbum(
+                                    tps.songPlayerSongs[tps.currentIndex],
+                                    this@SongPlayer
+                                )
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                contentColor = Color.White
+                            ),
+                            shape = RoundedCornerShape(50),
+                            modifier = Modifier
+                                .padding(16.dp)
+                                .align(Alignment.TopCenter)
+                                .background(
+                                    color = Color.Transparent,
+                                    shape = RoundedCornerShape(50)
+                                )
+                        ) {
+                            Text(text = "Dodaj u album")
+                        }
+                    }
                 }
             }
         }
     }
-
     override fun onDestroy() {
         super.onDestroy()
         playerViewModel.uiState.value.player?.stop()
@@ -206,4 +238,58 @@ fun initializePlayer(context: Context, trackedSongPlayerSongs: TrackedSongPlayer
         player = ExoPlayer.Builder(context).build(),
         trackedSongPlayerSongs = trackedSongPlayerSongs
     )
+}
+
+fun addSongToAlbum(song: Song, context: Context) {
+    val db = Firebase.firestore
+
+    val userUid = FirebaseAuth.getInstance().uid
+    if (userUid == null) {
+        Toast.makeText(context, "Kako biste dodali pjesmu u Vaš album, morate se prijaviti", Toast.LENGTH_SHORT).show()
+        return
+    }
+
+    val newSong = hashMapOf(
+        "artists" to song.artists,
+        "imageUrl" to song.imageUrl,
+        "playbackUrl" to song.playbackUrl,
+        "title" to song.title
+    )
+    val newPlaylist = hashMapOf(
+        "songs" to listOf("")
+    )
+
+
+    db.collection("song")
+        .whereEqualTo("title", song.title)
+        .whereEqualTo("artists", song.artists)
+        .get()
+        .addOnSuccessListener { querySnapshot ->
+            if (querySnapshot.isEmpty) {
+                db.collection("song")
+                    .add(newSong)
+                    .addOnSuccessListener { result ->
+                        Firebase.firestore.runTransaction { transaction ->
+                            val userPlaylist = Firebase.firestore.collection("playlist").document(userUid)
+                            if (!transaction.get(userPlaylist).exists()) {
+                                transaction.set(userPlaylist, hashMapOf("songs" to listOf(result.id)))
+                            } else {
+                                val playlist = db.collection("playlist").document(userUid)
+                                playlist.update("songs", FieldValue.arrayUnion(result.id))
+                                    .addOnSuccessListener {
+                                        Toast.makeText(context, "Pjesma uspješno dodana u album", Toast.LENGTH_SHORT).show()
+                                    }
+                                    .addOnFailureListener {
+                                        Toast.makeText(context, "Dogodila se greška prilikom dodavanja pjesme u album", Toast.LENGTH_SHORT).show()
+                                    }
+                            }
+                        }
+                    }
+            } else {
+                Toast.makeText(context, "Pjesma već postoji u albumu", Toast.LENGTH_SHORT).show()
+            }
+        }
+        .addOnFailureListener {
+            Toast.makeText(context, "Dogodila se greška prilikom provjere pjesme", Toast.LENGTH_SHORT).show()
+        }
 }
